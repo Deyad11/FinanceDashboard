@@ -2,7 +2,8 @@ import { useState } from 'react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
-import { portfolioData } from '../data/mockData'
+import { transactions, spendingCategories, portfolioData } from '../data/mockData'
+import { generateDynamicInsights } from '../hooks/generateInsights' // ✅ Hooked up from correct path!
 
 // ── Portfolio chart tooltip ───────────────────────────────────────────────────
 
@@ -21,23 +22,24 @@ const formatYAxis = (v) =>
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-const ActiveSignalCard = () => (
+// ✅ Now accepts dynamic signal data!
+const ActiveSignalCard = ({ signal }) => (
   <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-6 transition-colors h-full">
     <div className="flex items-center gap-2 mb-4">
       <span className="w-2 h-2 rounded-full bg-orange-400 dark:bg-orange-500 transition-colors" />
       <span className="text-xs font-semibold text-orange-500 dark:text-orange-400 uppercase tracking-widest transition-colors">
-        Active Signal: Rebalance Priority
+        Active Signal: {signal.title}
       </span>
     </div>
 
     <div className="flex gap-6">
       <div className="flex-1">
+        {/* Splits the dynamic text so the first sentence is bold, the rest is normal */}
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-snug mb-3 transition-colors">
-          Your technology exposure has increased by 14.2% since last quarter.
+          {signal.text.split('.')[0]}.
         </h2>
         <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-5 transition-colors">
-          Our algorithms suggest shifting 4% of gains into emerging market debt
-          and high-yield real estate to maintain your risk-adjusted profile.
+          {signal.text.substring(signal.text.indexOf('.') + 1).trim() || 'Review your portfolio to maintain your risk-adjusted profile.'}
         </p>
         <div className="flex items-center gap-3">
           <button className="px-4 py-2 bg-blue-600 dark:bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-700 transition-colors">
@@ -49,7 +51,7 @@ const ActiveSignalCard = () => (
         </div>
       </div>
 
-      {/* Signal confidence box */}
+      {/* Signal confidence box (Styling unchanged) */}
       <div className="w-44 shrink-0 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 transition-colors">
         <div className="mb-3">
           <svg viewBox="0 0 48 32" className="w-16 h-10" fill="none">
@@ -145,7 +147,6 @@ const PortfolioPerformanceCard = () => {
                 <stop offset="95%" stopColor="#378ADD" stopOpacity={0} />
               </linearGradient>
             </defs>
-            {/* The stroke uses currentColor to inherit from the parent div above */}
             <CartesianGrid strokeDasharray="3 3" stroke="currentColor" vertical={false} />
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} />
             <YAxis tickFormatter={formatYAxis} tick={{ fontSize: 11, fill: '#9ca3af' }} axisLine={false} tickLine={false} width={52} />
@@ -192,7 +193,6 @@ const SectorAllocationCard = () => {
         ))}
       </div>
 
-      {/* Top performer + Risk level */}
       <div className="grid grid-cols-2 gap-3 mt-auto">
         <div className="rounded-xl p-3 text-white bg-gradient-to-br from-[#1a4fc4] to-[#378ADD] dark:from-gray-800 dark:to-gray-700 border border-transparent dark:border-gray-700 transition-colors">
           <p className="text-xs text-blue-200 dark:text-gray-400 uppercase tracking-widest mb-1 transition-colors">Top Performer</p>
@@ -209,38 +209,8 @@ const SectorAllocationCard = () => {
   )
 }
 
-const CashFlowSection = () => {
-  const items = [
-    {
-      icon: (
-        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-blue-500 dark:text-blue-400 transition-colors">
-          <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.33.576z" />
-          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-6a.75.75 0 01.75.75v.316a3.78 3.78 0 011.653.713c.426.33.744.74.925 1.2a.75.75 0 01-1.395.55 1.35 1.35 0 00-.447-.563 2.187 2.187 0 00-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696V15.75a.75.75 0 01-1.5 0v-.324a3.781 3.781 0 01-1.652-.713C6.9 14.353 6.5 13.75 6.5 13a.75.75 0 011.5 0c0 .14.083.366.33.564.27.21.657.364 1.12.43v-2.47a3.784 3.784 0 01-1.96-.696C6.704 10.367 6.2 9.611 6.2 8.75c0-.86.504-1.616 1.29-2.13A3.784 3.784 0 019.25 5.926V5.75A.75.75 0 0110 5z" clipRule="evenodd" />
-        </svg>
-      ),
-      title: 'Surplus Opportunity',
-      desc: "You spent 12% less on dining this month. Transfer $450 to your 'Growth' bucket to stay ahead of your 2024 goal.",
-    },
-    {
-      icon: (
-        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-amber-500 dark:text-amber-400 transition-colors">
-          <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 5a1 1 0 10-2 0v1H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
-        </svg>
-      ),
-      title: 'Recurring Audit',
-      desc: "We detected two overlapping streaming subscriptions. Cancelling 'Media+' would save you $180 annually.",
-    },
-    {
-      icon: (
-        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-green-500 dark:text-green-400 transition-colors">
-          <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
-        </svg>
-      ),
-      title: 'Tax-Loss Harvesting',
-      desc: '3 assets in your legacy portfolio are eligible for tax-loss harvesting. Potential benefit: $2,100.',
-    },
-  ]
-
+// ✅ Now accepts a dynamically merged array of items
+const CashFlowSection = ({ items }) => {
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-6 transition-colors">
       <div className="flex items-start justify-between mb-5">
@@ -258,8 +228,8 @@ const CashFlowSection = () => {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {items.map((item) => (
-          <div key={item.title} className="flex items-start gap-3">
+        {items.map((item, i) => (
+          <div key={i} className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 flex items-center justify-center shrink-0 transition-colors">
               {item.icon}
             </div>
@@ -277,6 +247,48 @@ const CashFlowSection = () => {
 // ── InsightsPage ──────────────────────────────────────────────────────────────
 
 const InsightsPage = () => {
+  // 1. Generate live insights
+  const liveInsights = generateDynamicInsights(transactions, spendingCategories)
+
+  // 2. Set up the Active Signal (Fallback to original text if conditions aren't met)
+  const activeSignal = liveInsights[0] || {
+    title: 'Rebalance Priority',
+    text: 'Your technology exposure has increased by 14.2% since last quarter. Our algorithms suggest shifting 4% of gains into emerging market debt.'
+  }
+
+  // 3. Keep your SVGs, but merge them safely with the dynamic text!
+  const cashFlowItems = [
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-blue-500 dark:text-blue-400 transition-colors">
+          <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.33.576z" />
+          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-6a.75.75 0 01.75.75v.316a3.78 3.78 0 011.653.713c.426.33.744.74.925 1.2a.75.75 0 01-1.395.55 1.35 1.35 0 00-.447-.563 2.187 2.187 0 00-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696V15.75a.75.75 0 01-1.5 0v-.324a3.781 3.781 0 01-1.652-.713C6.9 14.353 6.5 13.75 6.5 13a.75.75 0 011.5 0c0 .14.083.366.33.564.27.21.657.364 1.12.43v-2.47a3.784 3.784 0 01-1.96-.696C6.704 10.367 6.2 9.611 6.2 8.75c0-.86.504-1.616 1.29-2.13A3.784 3.784 0 019.25 5.926V5.75A.75.75 0 0110 5z" clipRule="evenodd" />
+        </svg>
+      ),
+      title: liveInsights[1]?.title || 'Surplus Opportunity',
+      desc: liveInsights[1]?.text || "You spent 12% less on dining this month. Transfer $450 to your 'Growth' bucket to stay ahead of your 2024 goal.",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-amber-500 dark:text-amber-400 transition-colors">
+          <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V8a2 2 0 00-2-2h-5L9 4H4zm7 5a1 1 0 10-2 0v1H8a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V9z" clipRule="evenodd" />
+        </svg>
+      ),
+      title: liveInsights[2]?.title || 'Recurring Audit',
+      desc: liveInsights[2]?.text || "We detected two overlapping streaming subscriptions. Cancelling 'Media+' would save you $180 annually.",
+    },
+    {
+      icon: (
+        <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-green-500 dark:text-green-400 transition-colors">
+          <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12h6.572l-1.305 6.093a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0017.25 8h-6.572l1.305-6.093z" />
+        </svg>
+      ),
+      // Keeping this one static since our function only generated 3 insights total
+      title: 'Tax-Loss Harvesting',
+      desc: '3 assets in your legacy portfolio are eligible for tax-loss harvesting. Potential benefit: $2,100.',
+    },
+  ]
+
   return (
     <div className="space-y-4">
       {/* Page header */}
@@ -294,7 +306,7 @@ const InsightsPage = () => {
       {/* Row 1 — Active Signal + Market Sentiment */}
       <div className="grid grid-cols-12 gap-4">
         <div className="col-span-7">
-          <ActiveSignalCard />
+          <ActiveSignalCard signal={activeSignal} />
         </div>
         <div className="col-span-5">
           <MarketSentimentCard />
@@ -312,7 +324,7 @@ const InsightsPage = () => {
       </div>
 
       {/* Row 3 — Cash Flow Intelligence */}
-      <CashFlowSection />
+      <CashFlowSection items={cashFlowItems} />
     </div>
   )
 }

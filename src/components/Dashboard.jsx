@@ -12,7 +12,7 @@ import AIStrategyCard from './AIStrategyCard'
 import AlertsSection from './AlertsSection'
 import SpendingComposition from './SpendingComposition'
 import TransactionsTable from './TransactionsTable'
-
+import { generateDynamicInsights } from '../hooks/generateInsights'
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 const SkeletonBlock = ({ className = '' }) => (
@@ -77,11 +77,10 @@ const Dashboard = ({ searchQuery }) => {
   const [retryKey, setRetryKey] = useState(0)
   const { data, loading, error } = useFetch(fetchDashboardData, [retryKey])
   const refetch = () => setRetryKey((k) => k + 1)
-
   if (loading) return <LoadingSkeleton />
   if (error)   return <ErrorState message={error} onRetry={refetch} />
   if (!data)   return null
-
+const liveInsights = generateDynamicInsights(data.transactions, data.spendingCategories)
   return (
     <div className="space-y-4">
 
@@ -103,7 +102,7 @@ const Dashboard = ({ searchQuery }) => {
         <div className="col-span-5">
           <SpendingComposition
             categories={data.spendingCategories}
-            insight={data.aiInsights[2]}
+           insight={liveInsights[0]}
           />
         </div>
         <div className="col-span-7">

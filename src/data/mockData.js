@@ -38,3 +38,27 @@ export const portfolioData = [
   { month: "Sep", value: 1200000 },
   { month: "Oct", value: 1248390 }
 ]
+export const budgetOverview = {
+  spent: 3120.00,
+  total: 4500.00,
+  remaining: 1380,
+  capacity: 30.7,
+  dailyBurn: 104
+}
+
+export const budgetCategories = [
+  { id: 1, title: 'Housing', left: 220, total: 1800, percent: 88 },
+  { id: 2, title: 'Food & Dining', left: 350, total: 800, percent: 56 },
+  { id: 3, title: 'Transportation', left: 150, total: 400, percent: 62 },
+  { id: 4, title: 'Utilities', left: 50, total: 300, percent: 83 },
+  { id: 5, title: 'Entertainment', left: 610, total: 1200, percent: 49 }
+]
+
+export const budgetHistory = [
+  { month: 'May', budget: 4000, actual: 3200 },
+  { month: 'Jun', budget: 4100, actual: 4300 },
+  { month: 'Jul', budget: 3900, actual: 2900 },
+  { month: 'Aug', budget: 4000, actual: 3800 },
+  { month: 'Sep', budget: 4200, actual: 4400 },
+  { month: 'Oct', budget: 4500, actual: 3120 }
+]
