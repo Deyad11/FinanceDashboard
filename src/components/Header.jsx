@@ -18,6 +18,10 @@ const Header = ({ searchQuery, setSearchQuery, darkMode, setDarkMode, currentPag
 
   const handleTabClick = (tab) => {
     setActiveTab(tab)
+    // FIX: If we are on the Insights page, going back to a tab should reset the main page view
+    if (currentPage === 'insights') {
+      setCurrentPage('dashboard') // Note: Change 'dashboard' to whatever your main page state is called in App.jsx
+    }
     track('tab_click', { tab })
   }
 
@@ -40,19 +44,24 @@ const Header = ({ searchQuery, setSearchQuery, darkMode, setDarkMode, currentPag
 
         {/* Tabs */}
         <nav className="flex items-center gap-1">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabClick(tab)}
-              className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
-                activeTab === tab
-                  ? 'text-blue-600 dark:text-blue-400 font-medium border-b-2 border-blue-500 rounded-none'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            // FIX: Only highlight these tabs if we are NOT viewing the Insights page
+            const isTabActive = activeTab === tab && currentPage !== 'insights'
+
+            return (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`px-4 py-1.5 text-sm rounded-lg transition-colors ${
+                  isTabActive
+                    ? 'text-blue-600 dark:text-blue-400 font-medium border-b-2 border-blue-500 rounded-none'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                }`}
+              >
+                {tab}
+              </button>
+            )
+          })}
           <button
             onClick={() => {
               setCurrentPage('insights')

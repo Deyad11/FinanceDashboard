@@ -5,7 +5,7 @@ import Header from './components/Header'
 
 const Dashboard    = lazy(() => import('./components/Dashboard'))
 const InsightsPage = lazy(() => import('./components/InsightsPage'))
-// const BudgetsPage  = lazy(() => import('./components/BudgetsPage'))
+const BudgetsPage  = lazy(() => import('./components/BudgetPage'))
 
 const PageFallback = () => (
   <div className="flex-1 flex items-center justify-center h-full">
@@ -38,7 +38,7 @@ function App() {
             <Suspense fallback={<PageFallback />}>
               {currentPage === 'dashboard' && <Dashboard searchQuery={searchQuery} />}
               {currentPage === 'insights'  && <InsightsPage />}
-              {/* {currentPage === 'budgets'   && <BudgetsPage />} */}
+              {currentPage === 'budgets'   && <BudgetsPage />}
             </Suspense>
           </main>
         </div>

@@ -16,7 +16,7 @@ import TransactionsTable from './TransactionsTable'
 // ── Loading skeleton ──────────────────────────────────────────────────────────
 
 const SkeletonBlock = ({ className = '' }) => (
-  <div className={`animate-pulse bg-gray-200 rounded-xl ${className}`} />
+  <div className={`animate-pulse bg-gray-200 dark:bg-gray-800 rounded-xl transition-colors ${className}`} />
 )
 
 const LoadingSkeleton = () => (
@@ -40,15 +40,19 @@ const LoadingSkeleton = () => (
 // ── Error state ───────────────────────────────────────────────────────────────
 
 const ErrorState = ({ message, onRetry }) => (
-  <div className="flex flex-col items-center justify-center py-20 text-center">
-    <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-4">
+  <div className="flex flex-col items-center justify-center py-20 text-center transition-colors">
+    <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-4 transition-colors">
       <span className="text-red-400 text-xl">⚠</span>
     </div>
-    <h3 className="text-sm font-semibold text-gray-700 mb-1">Failed to load dashboard</h3>
-    <p className="text-xs text-gray-400 mb-4 max-w-xs">{message}</p>
+    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1 transition-colors">
+      Failed to load dashboard
+    </h3>
+    <p className="text-xs text-gray-400 dark:text-gray-500 mb-4 max-w-xs transition-colors">
+      {message}
+    </p>
     <button
       onClick={onRetry}
-      className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+      className="px-4 py-2 text-sm font-medium text-white bg-blue-500 dark:bg-blue-600 rounded-lg hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
     >
       Retry
     </button>
