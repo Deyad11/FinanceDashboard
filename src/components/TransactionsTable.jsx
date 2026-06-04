@@ -1,4 +1,5 @@
-import { memo, useMemo } from 'react'
+import { memo, useMemo, useRef } from 'react'
+import { useVirtualizer } from '@tanstack/react-virtual' // ✅ Added import
 
 // Category config: badge colors + merchant icons
 const categoryConfig = {
@@ -40,15 +41,10 @@ const categoryConfig = {
   },
 }
 
-// Fake dates for display
-const fakeDates = {
-  1: 'Oct 24, 2023 • 14:20',
-  2: 'Oct 23, 2023 • 20:15',
-  3: 'Oct 22, 2023 • 09:00',
-  4: 'Oct 21, 2023 • 12:00',
-}
 
-const TransactionRow = memo(({ tx }) => {
+
+// ✅ Added measureRef and index props for the virtualizer to track row sizes
+const TransactionRow = memo(({ tx, measureRef, index }) => {
   const isIncome = tx.amount > 0
   const cfg = categoryConfig[tx.category] ?? {
     badge: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300',
@@ -63,7 +59,11 @@ const TransactionRow = memo(({ tx }) => {
   }).format(Math.abs(tx.amount))
 
   return (
-    <tr className="hover:bg-gray-50/60 dark:hover:bg-gray-800/60 transition-colors">
+    <tr 
+      ref={measureRef}
+      data-index={index}
+      className="hover:bg-gray-50/60 dark:hover:bg-gray-800/60 transition-colors"
+    >
       {/* Merchant */}
       <td className="px-5 py-3.5">
         <div className="flex items-center gap-3">
@@ -72,8 +72,7 @@ const TransactionRow = memo(({ tx }) => {
           </div>
           <div>
             <p className="text-sm font-medium text-gray-800 dark:text-gray-200 transition-colors">{tx.merchant}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors">{fakeDates[tx.id] ?? ''}</p>
-          </div>
+<p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 transition-colors">{tx.date}</p>          </div>
         </div>
       </td>
 
@@ -113,6 +112,8 @@ const TransactionRow = memo(({ tx }) => {
 TransactionRow.displayName = 'TransactionRow'
 
 const TransactionsTable = ({ transactions = [], searchQuery = '' }) => {
+  const parentRef = useRef(null) // ✅ Required reference for the scroll container
+
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return transactions
     const q = searchQuery.toLowerCase()
@@ -124,10 +125,25 @@ const TransactionsTable = ({ transactions = [], searchQuery = '' }) => {
     )
   }, [transactions, searchQuery])
 
+  // ✅ The Virtualizer Hook
+  const rowVirtualizer = useVirtualizer({
+    count: filtered.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 68, // Estimated height of your tr in pixels
+    overscan: 5,
+  })
+
+  // ✅ Padding calculation to trick the browser's scrollbar
+  const virtualItems = rowVirtualizer.getVirtualItems()
+  const paddingTop = virtualItems.length > 0 ? virtualItems[0]?.start || 0 : 0
+  const paddingBottom = virtualItems.length > 0
+    ? rowVirtualizer.getTotalSize() - (virtualItems[virtualItems.length - 1]?.end || 0)
+    : 0
+
   return (
-    <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden transition-colors">
+    <section className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden transition-colors flex flex-col h-full">
       {/* Header */}
-      <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between transition-colors">
+      <div className="px-5 py-4 border-b border-gray-50 dark:border-gray-800 flex items-center justify-between transition-colors shrink-0">
         <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 transition-colors">Recent Activity</h3>
         <div className="flex items-center gap-2">
           <button className="text-xs font-medium text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
@@ -139,10 +155,10 @@ const TransactionsTable = ({ transactions = [], searchQuery = '' }) => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
+      {/* ✅ Table Container: Fixed height and overflow-auto are mandatory for virtualization */}
+      <div ref={parentRef} className="overflow-auto max-h-[400px]">
+        <table className="w-full relative">
+          <thead className="sticky top-0 z-10 bg-white dark:bg-gray-900 shadow-sm dark:shadow-gray-800/50">
             <tr className="border-b border-gray-50 dark:border-gray-800 transition-colors">
               <th className="px-5 py-2.5 text-left text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide transition-colors">Merchant</th>
               <th className="px-4 py-2.5 text-left text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide transition-colors">Category</th>
@@ -152,7 +168,34 @@ const TransactionsTable = ({ transactions = [], searchQuery = '' }) => {
           </thead>
           <tbody className="divide-y divide-gray-50 dark:divide-gray-800 transition-colors">
             {filtered.length > 0 ? (
-              filtered.map((tx) => <TransactionRow key={tx.id} tx={tx} />)
+              <>
+                {/* ✅ Top Padding Row */}
+                {paddingTop > 0 && (
+                  <tr>
+                    <td colSpan={4} style={{ height: `${paddingTop}px` }} />
+                  </tr>
+                )}
+                
+                {/* ✅ The Virtualized Rows */}
+                {virtualItems.map((virtualRow) => {
+                  const tx = filtered[virtualRow.index]
+                  return (
+                    <TransactionRow 
+                      key={tx.id} 
+                      tx={tx} 
+                      measureRef={rowVirtualizer.measureElement}
+                      index={virtualRow.index}
+                    />
+                  )
+                })}
+
+                {/* ✅ Bottom Padding Row */}
+                {paddingBottom > 0 && (
+                  <tr>
+                    <td colSpan={4} style={{ height: `${paddingBottom}px` }} />
+                  </tr>
+                )}
+              </>
             ) : (
               <tr>
                 <td colSpan={4} className="px-5 py-10 text-center text-sm text-gray-400 dark:text-gray-500 transition-colors">
