@@ -27,12 +27,12 @@
     <meta name="twitter:image"       content="/og-image.png" />
 
     <!-- GA4 — replace G-XXXXXXXXXX with your real measurement ID -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=%GA_MEASUREMENT_ID%"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
-      gtag('config', 'G-DFMR26VCZC');
+  gtag('config', '%GA_MEASUREMENT_ID%');
       // Fire page_load event
       gtag('event', 'page_load', { page_title: 'Wealth Curator Dashboard' });
     </script>
