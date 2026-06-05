@@ -2,6 +2,7 @@ import { useState, lazy, Suspense } from 'react'
 import useLocalStorage from './hooks/useLocalStorage'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
+import BottomTabBar from './components/BottomTabBar'
 
 const Dashboard    = lazy(() => import('./components/Dashboard'))
 const InsightsPage = lazy(() => import('./components/InsightsPage'))
@@ -24,7 +25,12 @@ function App() {
   return (
     <div className={darkMode ? 'dark' : ''}>
       <div className="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden">
-        <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} darkMode={darkMode} />
+
+        {/* Sidebar — desktop only */}
+        <div className="hidden md:flex">
+          <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} darkMode={darkMode} />
+        </div>
+
         <div className="flex flex-col flex-1 overflow-hidden">
           <Header
             searchQuery={searchQuery}
@@ -34,7 +40,9 @@ function App() {
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
           />
-          <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-950">
+
+          {/* Main content — extra bottom padding on mobile for tab bar */}
+          <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-950 pb-20 md:pb-6">
             <Suspense fallback={<PageFallback />}>
               {currentPage === 'dashboard' && <Dashboard searchQuery={searchQuery} />}
               {currentPage === 'insights'  && <InsightsPage />}
@@ -42,6 +50,16 @@ function App() {
             </Suspense>
           </main>
         </div>
+      </div>
+
+      {/* Bottom tab bar — mobile only */}
+      <div className="md:hidden">
+        <BottomTabBar
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+        />
       </div>
     </div>
   )

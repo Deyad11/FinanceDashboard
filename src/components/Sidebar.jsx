@@ -48,11 +48,12 @@ const navItems = [
   },
 ]
 
-const Sidebar = ({ currentPage, setCurrentPage }) => {
+const Sidebar = ({ currentPage, setCurrentPage, darkMode }) => {
   const { track } = useAnalytics()
 
   return (
-    <aside className="w-56 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen shrink-0">
+    <aside className="w-56 bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col h-screen shrink-0 transition-colors">
+
       {/* Logo */}
       <div className="px-5 py-5 border-b border-gray-100 dark:border-gray-800">
         <div className="flex items-center gap-2.5">
