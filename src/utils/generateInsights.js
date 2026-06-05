@@ -1,4 +1,5 @@
 export const generateDynamicInsights = (transactions, categories) => {
+    if (!transactions || !categories) return [] 
   const insights = []
 
   // Logic 1: Tech Exposure

@@ -18,18 +18,33 @@ export const spendingCategories = [
 ]
 
 export const transactions = [
-  { id: 1, merchant: "Apple Store Soho", category: "Technology", status: "Cleared", amount: -1299.00 },
-  { id: 2, merchant: "Blue Hill Farm", category: "Lifestyle", status: "Cleared", amount: -485.20 },
-  { id: 3, merchant: "ConEd Utility Bill", category: "Utilities", status: "Pending", amount: -214.10 },
-  { id: 4, merchant: "Monthly Salary Deposit", category: "Income", status: "Cleared", amount: 12500.00 }
+  { id: 1,  merchant: "Apple Store Soho",       category: "Technology", status: "Cleared", amount: -1299.00, date: "Nov 01, 2024" },
+  { id: 2,  merchant: "Blue Hill Farm",         category: "Lifestyle",  status: "Cleared", amount: -485.20,  date: "Nov 02, 2024" },
+  { id: 3,  merchant: "ConEd Utility Bill",     category: "Utilities",  status: "Pending", amount: -214.10,  date: "Nov 03, 2024" },
+  { id: 4,  merchant: "Monthly Salary Deposit", category: "Income",     status: "Cleared", amount: 12500.00, date: "Nov 04, 2024" },
+  { id: 5,  merchant: "Netflix",                category: "Lifestyle",  status: "Cleared", amount: -15.99,   date: "Nov 05, 2024" },
+  { id: 6,  merchant: "Spotify Premium",        category: "Lifestyle",  status: "Cleared", amount: -9.99,    date: "Nov 06, 2024" },
+  { id: 7,  merchant: "Amazon Web Services",    category: "Technology", status: "Cleared", amount: -142.30,  date: "Nov 07, 2024" },
+  { id: 8,  merchant: "Whole Foods Market",     category: "Lifestyle",  status: "Cleared", amount: -213.45,  date: "Nov 08, 2024" },
+  { id: 9,  merchant: "Con Edison Gas",         category: "Utilities",  status: "Pending", amount: -98.00,   date: "Nov 09, 2024" },
+  { id: 10, merchant: "GitHub Pro",             category: "Technology", status: "Cleared", amount: -7.00,    date: "Nov 10, 2024" },
+  { id: 11, merchant: "Uber",                   category: "Lifestyle",  status: "Cleared", amount: -34.50,   date: "Nov 11, 2024" },
+  { id: 12, merchant: "Dividend — AAPL",        category: "Income",     status: "Cleared", amount: 320.00,   date: "Nov 12, 2024" },
+  { id: 13, merchant: "Figma Professional",     category: "Technology", status: "Cleared", amount: -45.00,   date: "Nov 13, 2024" },
+  { id: 14, merchant: "Equinox Gym",            category: "Lifestyle",  status: "Cleared", amount: -180.00,  date: "Nov 14, 2024" },
+  { id: 15, merchant: "Verizon Wireless",       category: "Utilities",  status: "Cleared", amount: -85.00,   date: "Nov 15, 2024" },
+  { id: 16, merchant: "Dividend — MSFT",        category: "Income",     status: "Cleared", amount: 180.00,   date: "Nov 16, 2024" },
+  { id: 17, merchant: "Notion Team Plan",       category: "Technology", status: "Pending", amount: -16.00,   date: "Nov 17, 2024" },
+  { id: 18, merchant: "Trader Joe's",           category: "Lifestyle",  status: "Cleared", amount: -95.30,   date: "Nov 18, 2024" },
+  { id: 19, merchant: "New York Times",         category: "Lifestyle",  status: "Cleared", amount: -17.00,   date: "Nov 19, 2024" },
+  { id: 20, merchant: "Internet — Optimum",     category: "Utilities",  status: "Cleared", amount: -69.99,   date: "Nov 20, 2024" },
 ]
 
 export const aiInsights = [
-  { id: 1, text: "Your tech exposure increased by 14.2% since last quarter. Consider rebalancing." },
-  { id: 2, text: "You can save $180 annually by removing duplicate streaming subscriptions." },
-  { id: 3, text: "Discretionary spending on Dining & Leisure is down 12% this month." }
+  { id: 'insight_1', text: 'Your tech exposure increased by 14.2% since last quarter. Consider rebalancing.' },
+  { id: 'insight_2', text: 'You can save $180 annually by removing duplicate streaming subscriptions.' },
+  { id: 'insight_3', text: 'Discretionary spending on Dining & Leisure is down 12% this month.' },
 ]
-
 export const portfolioData = [
   { month: "May", value: 1100000 },
   { month: "Jun", value: 1150000 },
