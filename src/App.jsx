@@ -3,10 +3,10 @@ import useLocalStorage from './hooks/useLocalStorage'
 import Sidebar from './components/Sidebar'
 import Header from './components/Header'
 import BottomTabBar from './components/BottomTabBar'
-
-const Dashboard    = lazy(() => import('./components/Dashboard'))
-const InsightsPage = lazy(() => import('./components/InsightsPage'))
-const BudgetsPage  = lazy(() => import('./components/BudgetPage'))
+import { ROUTES } from './constants/routes'
+const Dashboard    = lazy(() => import('./pages/Dashboard'))
+const InsightsPage = lazy(() => import('./pages/InsightsPage'))
+const BudgetsPage  = lazy(() => import('./pages/BudgetPage'))
 
 const PageFallback = () => (
   <div className="flex-1 flex items-center justify-center h-full">
@@ -20,7 +20,7 @@ const PageFallback = () => (
 function App() {
   const [darkMode, setDarkMode]       = useLocalStorage('darkMode', false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [currentPage, setCurrentPage] = useState('dashboard')
+const [currentPage, setCurrentPage] = useState(ROUTES.DASHBOARD)
 
   return (
     <div className={darkMode ? 'dark' : ''}>
@@ -44,9 +44,9 @@ function App() {
           {/* Main content — extra bottom padding on mobile for tab bar */}
           <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-gray-950 pb-20 md:pb-6">
             <Suspense fallback={<PageFallback />}>
-              {currentPage === 'dashboard' && <Dashboard searchQuery={searchQuery} />}
-              {currentPage === 'insights'  && <InsightsPage />}
-              {currentPage === 'budgets'   && <BudgetsPage />}
+           {currentPage === ROUTES.DASHBOARD && <Dashboard searchQuery={searchQuery} />}
+{currentPage === ROUTES.INSIGHTS  && <InsightsPage />}
+{currentPage === ROUTES.BUDGETS   && <BudgetsPage />}
             </Suspense>
           </main>
         </div>

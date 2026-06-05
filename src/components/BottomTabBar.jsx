@@ -1,6 +1,8 @@
+import { ROUTES } from '../constants/routes'
+
 const tabs = [
   {
-    id: 'dashboard',
+    id: ROUTES.DASHBOARD,
     label: 'Portfolio',
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -9,7 +11,7 @@ const tabs = [
     ),
   },
   {
-    id: 'insights',
+    id: ROUTES.INSIGHTS,
     label: 'Insights',
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -18,7 +20,7 @@ const tabs = [
     ),
   },
   {
-    id: 'budgets',
+    id: ROUTES.BUDGETS,
     label: 'Budgets',
     icon: (
       <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -39,12 +41,12 @@ const tabs = [
 
 const BottomTabBar = ({ currentPage, setCurrentPage, darkMode, setDarkMode }) => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center px-2 pb-safe">
+    <nav aria-label="Mobile navigation" className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex items-center px-2 pb-safe">
       {tabs.map((tab) => {
-        // Settings tab toggles dark mode instead of navigating
         if (tab.id === 'settings') {
           return (
             <button
+              aria-label="Settings"
               key={tab.id}
               onClick={() => alert('Settings coming soon!')}
               className="flex-1 flex flex-col items-center justify-center py-3 gap-1"
@@ -60,9 +62,9 @@ const BottomTabBar = ({ currentPage, setCurrentPage, darkMode, setDarkMode }) =>
                   </svg>
                 )}
               </span>
-           <span className="text-xs text-gray-400 dark:text-gray-500">
-  Settings
-</span>
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                Settings
+              </span>
             </button>
           )
         }
@@ -70,6 +72,8 @@ const BottomTabBar = ({ currentPage, setCurrentPage, darkMode, setDarkMode }) =>
         const isActive = currentPage === tab.id
         return (
           <button
+            aria-current={isActive ? 'page' : undefined}
+            aria-label={tab.label}
             key={tab.id}
             onClick={() => setCurrentPage(tab.id)}
             className="flex-1 flex flex-col items-center justify-center py-3 gap-1"
