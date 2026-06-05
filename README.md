@@ -226,6 +226,15 @@ For anything beyond that, React Router v6 with URL-based routing is
 the right call — search state becomes a URL param, navigation becomes
 bookmarkable, browser back button works.
 
+**Mobile bottom tab bar**
+
+On mobile browsers the bottom tab bar uses CSS `fixed` positioning, which 
+behaves differently from React Native's native tab bar. Browser chrome 
+(address bar) appearing and disappearing while scrolling can cause slight 
+positional shifts. This is a known browser limitation — the production fix 
+is `env(safe-area-inset-bottom)` with `viewport-fit=cover`, or going full 
+React Native Web where native primitives handle this correctly.
+
 ---
 
 ## Tech Stack
