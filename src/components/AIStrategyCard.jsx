@@ -4,11 +4,11 @@ const AIStrategyCard = () => {
   const { track } = useAnalytics()
 
   const handleExecute = () => {
-    track('execute_strategy', { action: 'execute', timestamp: Date.now() })
+    track('strategy_executed', { action: 'execute', timestamp: Date.now() })
   }
 
   const handleReview = () => {
-    track('execute_strategy', { action: 'review_audit', timestamp: Date.now() })
+    track('strategy_review_clicked', { action: 'review_audit', timestamp: Date.now() })
   }
 
   return (
