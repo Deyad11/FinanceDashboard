@@ -1,10 +1,14 @@
+import { useCallback } from 'react'
+
 const useAnalytics = () => {
-  const track = (eventName, params = {}) => {
-    if (window.gtag) {
+  const track = useCallback((eventName, params = {}) => {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', eventName, params)
     }
-    console.log(`[Analytics] ${eventName}`, params)
-  }
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Analytics] ${eventName}`, params)
+    }
+  }, []) 
 
   return { track }
 }
