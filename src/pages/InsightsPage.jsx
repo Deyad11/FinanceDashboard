@@ -1,11 +1,12 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts'
-import { transactions, spendingCategories, portfolioData } from '../data/mockData'
+import useFetch from '../hooks/useFetch'
+import useAnalytics from '../hooks/useAnalytics'
+import SkeletonBlock from '../components/ui/SkeletonBlock'
 import { generateDynamicInsights } from '../utils/generateInsights'
-
-// ── Tooltip ───────────────────────────────────────────────────────────────────
+import { transactions, spendingCategories, portfolioData } from '../data/mockData'
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
@@ -20,8 +21,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 const formatYAxis = (v) =>
   v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M` : `$${(v / 1_000).toFixed(0)}k`
 
-// ── Active Signal ─────────────────────────────────────────────────────────────
-
 const ActiveSignalCard = ({ signal }) => (
   <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 md:p-6 transition-colors h-full">
     <div className="flex items-center gap-2 mb-4">
@@ -31,7 +30,6 @@ const ActiveSignalCard = ({ signal }) => (
       </span>
     </div>
 
-    {/* Stack vertically on mobile, side by side on desktop */}
     <div className="flex flex-col md:flex-row gap-5">
       <div className="flex-1">
         <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-100 leading-snug mb-3">
@@ -51,7 +49,6 @@ const ActiveSignalCard = ({ signal }) => (
         </div>
       </div>
 
-      {/* Confidence box — full width on mobile, fixed width on desktop */}
       <div className="w-full md:w-44 shrink-0 border border-gray-100 dark:border-gray-800 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800 transition-colors">
         <div className="mb-3">
           <svg viewBox="0 0 48 32" className="w-16 h-10" fill="none">
@@ -68,8 +65,6 @@ const ActiveSignalCard = ({ signal }) => (
     </div>
   </div>
 )
-
-// ── Market Sentiment ──────────────────────────────────────────────────────────
 
 const MarketSentimentCard = () => {
   const items = [
@@ -103,8 +98,6 @@ const MarketSentimentCard = () => {
     </div>
   )
 }
-
-// ── Portfolio Performance ─────────────────────────────────────────────────────
 
 const PortfolioPerformanceCard = () => {
   const [activeRange, setActiveRange] = useState('1M')
@@ -158,8 +151,6 @@ const PortfolioPerformanceCard = () => {
   )
 }
 
-// ── Sector Allocation ─────────────────────────────────────────────────────────
-
 const SectorAllocationCard = () => {
   const sectors = [
     { label: 'Technology', percent: 42, color: '#378ADD' },
@@ -200,8 +191,6 @@ const SectorAllocationCard = () => {
   )
 }
 
-// ── Cash Flow Intelligence ────────────────────────────────────────────────────
-
 const CashFlowSection = ({ items }) => (
   <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl p-5 md:p-6 transition-colors">
     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-5">
@@ -218,7 +207,6 @@ const CashFlowSection = ({ items }) => (
       </button>
     </div>
 
-    {/* 1 col on mobile, 3 on desktop */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {items.map((item, i) => (
         <div key={i} className="flex items-start gap-3">
@@ -235,10 +223,63 @@ const CashFlowSection = ({ items }) => (
   </div>
 )
 
-// ── InsightsPage ──────────────────────────────────────────────────────────────
+const LoadingSkeleton = () => (
+  <div className="space-y-4">
+    <SkeletonBlock className="h-8 w-64" />
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <SkeletonBlock className="md:col-span-7 h-56" />
+      <SkeletonBlock className="md:col-span-5 h-56" />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <SkeletonBlock className="md:col-span-7 h-72" />
+      <SkeletonBlock className="md:col-span-5 h-72" />
+    </div>
+    <SkeletonBlock className="h-40" />
+  </div>
+)
+
+const ErrorState = ({ message, onRetry }) => (
+  <div className="flex flex-col items-center justify-center py-20 text-center">
+    <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-4">
+      <span className="text-red-400 text-xl">⚠</span>
+    </div>
+    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+      Failed to load insights
+    </h3>
+    <p className="text-xs text-gray-400 dark:text-gray-500 mb-4 max-w-xs">{message}</p>
+    <button
+      onClick={onRetry}
+      className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors"
+    >
+      Retry
+    </button>
+  </div>
+)
+
+const fetchInsightsData = () => ({
+  transactions,
+  spendingCategories,
+  portfolioData,
+})
 
 const InsightsPage = () => {
-  const liveInsights = generateDynamicInsights(transactions, spendingCategories)
+  const { track } = useAnalytics()
+  const [retryKey, setRetryKey] = useState(0)
+  const { data, loading, error } = useFetch(fetchInsightsData, [retryKey])
+  const refetch = () => setRetryKey((k) => k + 1)
+
+  const liveInsights = useMemo(
+    () => generateDynamicInsights(data?.transactions, data?.spendingCategories),
+    [data?.transactions, data?.spendingCategories]
+  )
+
+  useEffect(() => {
+    track('page_view', { page: 'insights' })
+  }, [track])
+
+  if (loading) return <LoadingSkeleton />
+  if (error)   return <ErrorState message={error} onRetry={refetch} />
+  if (!data)   return null
 
   const activeSignal = liveInsights[0] || {
     title: 'Rebalance Priority',
@@ -278,7 +319,6 @@ const InsightsPage = () => {
   return (
     <div className="space-y-4">
 
-      {/* Page header */}
       <div className="mb-2">
         <p className="text-xs font-semibold text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">
           Wealth Intelligence
@@ -289,7 +329,6 @@ const InsightsPage = () => {
         </p>
       </div>
 
-      {/* Row 1 — Active Signal + Market Sentiment */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         <div className="md:col-span-7">
           <ActiveSignalCard signal={activeSignal} />
@@ -299,7 +338,6 @@ const InsightsPage = () => {
         </div>
       </div>
 
-      {/* Row 2 — Portfolio Chart + Sector Allocation */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         <div className="md:col-span-7">
           <PortfolioPerformanceCard />
@@ -309,7 +347,6 @@ const InsightsPage = () => {
         </div>
       </div>
 
-      {/* Row 3 — Cash Flow */}
       <CashFlowSection items={cashFlowItems} />
 
     </div>

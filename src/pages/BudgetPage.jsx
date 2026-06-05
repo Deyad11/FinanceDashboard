@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
@@ -95,7 +95,9 @@ const BudgetPage = () => {
   const [retryKey, setRetryKey] = useState(0)
   const { data, loading, error } = useFetch(fetchBudgetData, [retryKey])
   const refetch = () => setRetryKey((k) => k + 1)
-
+useEffect(() => {
+  track('page_view', { page: 'budgets' })
+}, [track])
   if (loading) return <LoadingSkeleton />
   if (error)   return <ErrorState message={error} onRetry={refetch} />
   if (!data)   return null

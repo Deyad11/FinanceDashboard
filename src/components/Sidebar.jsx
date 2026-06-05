@@ -54,7 +54,7 @@ const navItems = [
   },
 ]
 
-const Sidebar = ({ currentPage, setCurrentPage, darkMode }) => {
+const Sidebar = ({ currentPage, setCurrentPage }) => {
   const { track } = useAnalytics()
 
   return (
